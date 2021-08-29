@@ -6,8 +6,10 @@ Once this is decoded you should be left with a string of binary data.
 *Disclaimer: Some variables seem to be little endian, some big endian, not 100% sure on that stuff*
 
 ## Header [10 bytes]
-bytes 0-4 are always identical: 0x CE FA CE D1 02 (version identifier?)
+bytes 0-4 are always identical: `0x CE FA CE D1 02` (version identifier?)
+
 byte 5: Padding (= 0) (?)
+
 bytes 6-9: Number of unique assets in slab (Investigate, could also be bytes 5-6)
 
 ## Asset list [n * 20 bytes]
@@ -15,6 +17,7 @@ bytes 6-9: Number of unique assets in slab (Investigate, could also be bytes 5-6
 
 ### Asset [20 bytes]
 bytes 0-15: UUID. Some "groups" seem to be reversed: `08:d2:cf:32:63:c3:34:44:b8:17:8b:a5:9f:ae:ed:17` -> `08:d2:cf:32` = reversed; `63:c3` = reversed; `34:44` = reversed; `b8:17` = not reversed; `8b:a5:9f:ae:ed:17` = not reversed. Actual resulting UUID is `32CFD208-C363-4434-B817-8BA59FAEED17`
+
 bytes 16-19: Number of instances of this tile
 
 next asset ... (is a list, no padding in between elements)
