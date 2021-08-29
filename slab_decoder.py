@@ -59,8 +59,8 @@ def decodeAssetPosition(assetPositionData, decAssetCount):
             })
             break
     
-#slabFileName = input("Enter file containing slab code: ")
-slabFileName = "test_slabs/rot_prop"
+slabFileName = input("Enter file containing slab code: ")
+#slabFileName = "test_slabs/rot_prop"
 
 #read slab
 slabFile = open(slabFileName, "r")
