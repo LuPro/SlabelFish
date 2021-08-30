@@ -2,6 +2,7 @@ import base64
 import gzip
 import io
 import uuid
+import argparse
 from struct import *
 
 assets = {
@@ -11,6 +12,7 @@ assets = {
 
 assetListEntryLength = 20
 assetPositionEntryLength = 8
+  
 
 def assembleBytes(byteList):
     total = 0
@@ -109,6 +111,3 @@ while(len(assetPositionList[decAssetCount*assetPositionEntryLength:]) > assetPos
     decodeAssetPosition(assetPositionList[decAssetCount * assetPositionEntryLength:(decAssetCount+1) * assetPositionEntryLength], decAssetCount)
     decAssetCount += 1
 print(assets)
-    
-    
-    
