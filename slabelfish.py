@@ -12,7 +12,26 @@ assets = {
 
 assetListEntryLength = 20
 assetPositionEntryLength = 8
-  
+
+def main():
+    arg_parser = argparse.ArgumentParser(description="Decode or Encode TaleSpire slabs to/from JSON", epilog="If no arguments are specified (or some important ones are omitted), SlabelFish will instead launch into interactive mode where the (missing) options are asked via input prompts.")
+    
+    arg_parser.add_argument('-v', '--verbose', action='store_true', help="Show internal messages while de- or encoding slabs. Useful for debugging or learning the format.")
+    arg_parser.add_argument('-e', '--encode', action='store_true', help="Specifies that JSON data is provided which is to be encoded into a TaleSpire slab. If this is specified together with -d, SlabelFish will interpret it as -a being set")
+    arg_parser.add_argument('-d', '--decode', action='store_true', help="Specifies that TaleSpire slab data is provided which is to be decoded into JSON. If this is specified together with -e, SlabelFish will interpret it as -a being set")
+    arg_parser.add_argument('-a', '--automatic', action='store_true', help="Tries to guess based on input data entered --in whether to decode or encode and whether to read the data directly from the argument or if it's stored in a file and the file name was specified.")
+    arg_parser.add_argument('--in', type=ascii, metavar='IN_DATA', help="Enter input data, either the actual raw data (be it a TaleSpire slab or a JSON object) or a filename to read said data from.")
+    arg_parser.add_argument('--out', type=ascii, metavar='OUT_DATA', help="Enter a file name that serves as output for the final result. Progress output like info messages with -v are still printed on the command line.")
+    
+    #arg_parser.add_argument()
+    
+    
+    args = arg_parser.parse_args()
+    print(args)
+    
+if __name__ == '__main__':
+    main()
+    
 
 def assembleBytes(byteList):
     total = 0
