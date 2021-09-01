@@ -19,6 +19,9 @@ def print_info(level, msg, verbose, quiet):
 def format_binary(data):
     return ":".join("{:02X}".format(b) for b in data)
 
+
+# ------- decode part start
+
 def assemble_bytes(bytes):
     total = 0
     for byte in bytes:
@@ -42,6 +45,7 @@ def decode_asset(asset_data, verbose=False, quiet=False):
     }
     
 
+#decodes an asset position, returns a tuple of which asset this position belongs to (index from asset list) as well as the position
 def decode_asset_position(asset_position_data, assets, dec_asset_count, verbose=False, quiet=False):
     #decode position from blob passed on
     print_info("info_quiet", "\n      Decoding asset position from list: " + format_binary(asset_position_data), verbose, quiet)
@@ -58,15 +62,15 @@ def decode_asset_position(asset_position_data, assets, dec_asset_count, verbose=
     print_info("info_quiet", "      Keeping track of which assets' position is being read (count asset list)", verbose, quiet)
     #print_info("info_quiet", "      Keep track of which asset position is being read. Done by iterating through asset list and summing up instance counts until the current number of parsed asset positions is lower or equal to the number of asset instances from the list. This is the asset this position belongs to.", verbose, quiet)
     sub_total = 0
-    for asset in assets['asset_data']:
+    for i, asset in enumerate(assets['asset_data']):
         sub_total += asset['instance_count']
         if (dec_asset_count < sub_total): #check if the currently iterated through asset in the asset list is the one we are currently decoding the pos of
-            return {
+            return (i, {
                 "x": x,
                 "y": y,
                 "z": z,
                 "degree": rot*15
-            }
+            })
             
 
 def decode(data, asset_list_entry_length, asset_position_entry_length, verbose=False, quiet=False):
@@ -113,15 +117,25 @@ def decode(data, asset_list_entry_length, asset_position_entry_length, verbose=F
     dec_asset_count = 0
     while(len(asset_position_list[dec_asset_count*asset_position_entry_length:]) > asset_position_entry_length):
         position = decode_asset_position(asset_position_list[dec_asset_count * asset_position_entry_length:(dec_asset_count+1) * asset_position_entry_length], out_json, dec_asset_count, verbose, quiet)
-        out_json["asset_data"][i]["instances"].append(position)
+        out_json["asset_data"][position[0]]["instances"].append(position[1])
         dec_asset_count += 1
     
     return out_json
 
+# ------- decode part end
+
+
+# ------- encode part start
 
 def encode(data, verbose=False, quiet=False):
-    print("error: Not yet implemented!")
-
+    slab_json = json.loads(data)
+    slab_json['unique_asset_count'] = len(slab_json['asset_data']) # no input validation! possibly keep track of duplicate entries (are they actually unique?) and either resolve or give warning in case of duplicates. Also no validation if # unique assets are too many for the format
+    for asset in slab_json['asset_data']:
+        asset['instance_count'] = len(asset['instances'])
+        
+    print(json.dumps(slab_json, indent=2))
+    
+# ------- encode part end
 
 def read_arguments(args):
     exec_data = {
@@ -177,7 +191,7 @@ def read_arguments(args):
     elif (args.in_file == None and args.data == None):
         in_data = input("Please enter the data you want converted. You can either directly paste the data (a TaleSpire slab or a JSON string) here, or specify a file name that contains this (and only this) data.\n")
         #match = re.search('^```.*```$|.+\.json$', in_data)
-        if (re.fullmatch('^```.*```$|^{.*}$', in_data) != None):
+        if (re.fullmatch('^```.*```$|^{.*}$', in_data, flags=re.DOTALL) != None):
             exec_data['in_data'] = in_data
         else:
             exec_data['in_file'] = in_data
@@ -220,7 +234,7 @@ def main():
         sys.exit(1)
         
     print_info("info", "Done.", exec_data['verbose'], exec_data['quiet'])
-        
+
     # Check if decode, encode or automatic switch
     out_data = None
     if (exec_data['mode'] == 'encode'):
@@ -232,7 +246,7 @@ def main():
         if (re.fullmatch('^```.*```$', data) != None): # Decode
             print_info("info", "Interpreted input as slab data, setting to decode.", exec_data['verbose'], exec_data['quiet'])
             out_data = decode(data, asset_list_entry_length, asset_position_entry_length, exec_data['verbose'], exec_data['quiet'])
-        elif (re.fullmatch('^{.*}$', data) != None): #Encode
+        elif (re.fullmatch('^{.*}$', data, flags=re.DOTALL) != None): #Encode
             print_info("info", "Interpreted input as JSON data, setting to encode.", exec_data['verbose'], exec_data['quiet'])
             out_data = encode(data, exec_data['verbose'], exec_data['quiet'])
         else:
