@@ -335,12 +335,12 @@ def main():
         sys.exit(1)
         
     if (exec_data['out'] == None):
-        print_info("info_quiet", "\n---\n\nResult:", True, exec_data['quiet'])
+        print_info("info_quiet", "\n---\n\nResult:", exec_data['verbose'], exec_data['quiet'])
         if (exec_data['mode'] == 'decode'): # can I do that nicer?
             #print(json.dumps(out_data, indent=2)) #make cmd argument for pretty print? default pretty with flag for short?
             print_info("info_quiet", json.dumps(out_data), True, exec_data['quiet'])
         elif (exec_data['mode'] == 'encode'):
-            print_info("info_quiet", out_data, True, exec_data['quiet'])
+            print_info("info_quiet", out_data, True, True)
     else:
         out_file = open(exec_data['out'], "w")
         if (exec_data['mode'] == 'decode'): # can I do that nicer?
