@@ -21,7 +21,7 @@ for interactive mode.
 shows help text and usage info. For convenience and documentation purposes the help text is copied to here as well:
 
 ```
-usage: slabelfish.py [-h] [-v] [-q] [-e] [-d] [-a] [--in_file IN_FILE]
+usage: slabelfish.py [-h] [-v] [-q] [-e] [-d] [-a] [-c] [--in_file IN_FILE]
                      [--out OUT_DATA]
                      [IN_DATA]
 
@@ -51,6 +51,9 @@ optional arguments:
                      to decode or encode and whether to read the data directly
                      from the argument or if it's stored in a file and the
                      file name was specified.
+  -c, --compact      Switches to compact mode, printing JSON output in one
+                     line instead of prettified with newlines and indentation.
+                     Only has an effect in decoding mode.
   --in_file IN_FILE  Enter a file name for SlabelFish to read the data
                      (TaleSpire slab or JSON string) from. Don't specify this
                      and positional argument 'data' at the same time, in case
@@ -59,7 +62,7 @@ optional arguments:
                      result. Progress output like info messages with -v are
                      still printed on the command line.
 
-If no arguments are specified (or some important ones are omitted), SlabelFish
+If no arguments are specified (or some required ones are omitted), SlabelFish
 will instead launch into interactive mode where the (missing) options are
 asked via input prompts.
 ```

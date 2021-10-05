@@ -60,7 +60,7 @@ def decode_asset_position(asset_position_data, assets, dec_asset_count, verbose=
     print_info("info_quiet", "      Extracted coordinates and rotation from blob:\n        x: " + str(x) + ", y: " + str(y) + ", z: " + str(z) + " | rot: " + str(rot) + "(=" + str(rot*15) + "°)", verbose, quiet)
     
     #figure out which asset this position actually belongs to and store it
-    print_info("info_quiet", "      Keeping track of which assets' position is being read (count asset list)", verbose, quiet)
+    print_info("info_quiet", "      Keeping track of which asset's position is being read (count asset list)", verbose, quiet)
     #print_info("info_quiet", "      Keep track of which asset position is being read. Done by iterating through asset list and summing up instance counts until the current number of parsed asset positions is lower or equal to the number of asset instances from the list. This is the asset this position belongs to.", verbose, quiet)
     sub_total = 0
     for i, asset in enumerate(assets['asset_data']):
@@ -220,13 +220,16 @@ def read_arguments(args):
         'mode': None,
         'in_file': None,
         'in_data': None,
-        'out': None
+        'out': None,
+        'compact': None
     }
     
     exec_data['verbose'] = args.verbose
     if (args.quiet == True):
         exec_data['quiet'] = True
         exec_data['verbose'] = False
+
+    exec_data['compact'] = args.compact
     
     if (args.encode == True and args.decode == True): # I dislike the entire mode switch thing. It's long and feels like a lot of duplicated code. Would like to change/shorten, though not sure if possible with all the things I want it to do.
         print_info("warning", "Both encode and decode was specified. Trying to figure out which one was meant based on input (automatic mode)", exec_data['verbose'], exec_data['quiet'])
@@ -274,6 +277,8 @@ def read_arguments(args):
             
         if (args.out == None):
             exec_data['out'] = input("Do you also want to store the result in a specific file? If not it will just be displayed at the end of the program execution. Enter the file name you want or leave empty and press enter.\n")
+            if (exec_data['out'] == ''):
+                exec_data['out'] = None
     else:
         exec_data['in_data'] = args.data
         exec_data['in_file'] = args.in_file
@@ -284,13 +289,14 @@ def main():
     asset_list_entry_length = 20
     asset_position_entry_length = 8
 
-    arg_parser = argparse.ArgumentParser(description="Decode or Encode TaleSpire slabs to/from JSON", epilog="If no arguments are specified (or some important ones are omitted), SlabelFish will instead launch into interactive mode where the (missing) options are asked via input prompts.")
+    arg_parser = argparse.ArgumentParser(description="Decode or Encode TaleSpire slabs to/from JSON", epilog="If no arguments are specified (or some required ones are omitted), SlabelFish will instead launch into interactive mode where the (missing) options are asked via input prompts.")
     
     arg_parser.add_argument('-v', '--verbose', action='store_true', help="Show internal messages while de- or encoding slabs. Useful for debugging or learning the format. Errors will be shown nontheless.")
     arg_parser.add_argument('-q', '--quiet', action='store_true', help="Turn off all internal messages apart from the final conversion result and necessary input prompts. Overrides -v.")
     arg_parser.add_argument('-e', '--encode', action='store_true', help="Specifies that JSON data is provided which is to be encoded into a TaleSpire slab. If this is specified together with -d, SlabelFish will interpret it as -a being set")
     arg_parser.add_argument('-d', '--decode', action='store_true', help="Specifies that TaleSpire slab data is provided which is to be decoded into JSON. If this is specified together with -e, SlabelFish will interpret it as -a being set")
     arg_parser.add_argument('-a', '--automatic', action='store_true', help="Tries to guess based on input data entered --in whether to decode or encode and whether to read the data directly from the argument or if it's stored in a file and the file name was specified.")
+    arg_parser.add_argument('-c', '--compact', action='store_true', help="Switches to compact mode, printing JSON output in one line instead of prettified with newlines and indentation. Only has an effect in decoding mode.")
     arg_parser.add_argument('--in_file', metavar='IN_FILE', help="Enter a file name for SlabelFish to read the data (TaleSpire slab or JSON string) from. Don't specify this and positional argument 'data' at the same time, in case of conflict, this will be discarded.")
     arg_parser.add_argument('--out', metavar='OUT_DATA', help="Enter a file name that serves as output for the final result. Progress output like info messages with -v are still printed on the command line.")
     arg_parser.add_argument('data', metavar='IN_DATA', nargs='?', help="Enter raw input data (TaleSpire slab or JSON string) for conversion. Don't specify this and '--in_file' at the same time, in case of conflict this takes precedence.")
@@ -337,15 +343,21 @@ def main():
     if (exec_data['out'] == None):
         print_info("info_quiet", "\n---\n\nResult:", exec_data['verbose'], exec_data['quiet'])
         if (exec_data['mode'] == 'decode'): # can I do that nicer?
-            #print(json.dumps(out_data, indent=2)) #make cmd argument for pretty print? default pretty with flag for short?
-            print_info("info_quiet", json.dumps(out_data), True, exec_data['quiet'])
+            if (exec_data['compact'] == True):
+                print_info("info_quiet", json.dumps(out_data), True, False)
+            else:
+                print_info("info_quiet", json.dumps(out_data, indent=2), True, False)
         elif (exec_data['mode'] == 'encode'):
-            print_info("info_quiet", out_data, True, True)
+            print_info("info_quiet", out_data.decode(), True, False)
     else:
-        out_file = open(exec_data['out'], "w")
         if (exec_data['mode'] == 'decode'): # can I do that nicer?
-            out_file.write(json.dumps(out_data, indent=2))
+            out_file = open(exec_data['out'], "w")
+            if (exec_data['compact'] == True):
+                out_file.write(json.dumps(out_data))
+            else:
+                out_file.write(json.dumps(out_data, indent=2))
         elif (exec_data['mode'] == 'encode'):
+            out_file = open(exec_data['out'], "wb")
             out_file.write(out_data)
         out_file.close()
         
