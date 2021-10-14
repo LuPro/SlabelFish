@@ -1,7 +1,5 @@
 from utils import *
 
-import json
-
 def create_header(unique_asset_count, verbose=False, quiet=False):
     header = b'\xCE\xFA\xCE\xD1\x02\x00'
     header += unique_asset_count.to_bytes(4, byteorder='little')

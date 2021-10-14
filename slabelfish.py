@@ -7,7 +7,7 @@ import sys
 from utils import *
 import encoder
 import decoder
-import asset_data_reader
+import assets_reader
 
 def read_arguments(args):
     exec_data = {
@@ -17,7 +17,8 @@ def read_arguments(args):
         'in_file': None,
         'in_data': None,
         'out': None,
-        'compact': None
+        'compact': None,
+        'ts_dir': None
     }
     
     exec_data['verbose'] = args.verbose
@@ -59,6 +60,13 @@ def read_arguments(args):
             else:
                 print_info("error", "This error should be unreachable. There are no mode flags set but it was not caught earlier to ask for input. Aborting.", exec_data['verbose'], exec_data['quiet'])
                 sys.exit(1)
+
+    if (args.ts_dir == None and exec_data['mode'] == 'encode'):
+        ts_dir = input("Specify the TaleSpire base directory (absolute path or relative to SlabelFish). Leave empty if no input validation should be done. WIP, NOT IMPLEMENTED YET\n")
+        if (assets_reader.verify_TS_dir(ts_dir) and ts_dir != ""):
+            exec_data['ts_dir'] = ts_dir
+        else:
+            exec_data['ts_dir'] = None # Is None the best choice here? If so, is it the best choice for exec_data['out'] a bit later?
                 
     exec_data['out'] = args.out
     if (args.in_file != None and args.data != None):
@@ -82,9 +90,6 @@ def read_arguments(args):
     return exec_data
 
 def main():
-    asset_list_entry_length = 20
-    asset_position_entry_length = 8
-
     arg_parser = argparse.ArgumentParser(description="Decode or Encode TaleSpire slabs to/from JSON", epilog="If no arguments are specified (or some required ones are omitted), SlabelFish will instead launch into interactive mode where the (missing) options are asked via input prompts.")
     
     arg_parser.add_argument('-v', '--verbose', action='store_true', help="Show internal messages while de- or encoding slabs. Useful for debugging or learning the format. Errors will be shown nontheless.")
@@ -93,6 +98,7 @@ def main():
     arg_parser.add_argument('-d', '--decode', action='store_true', help="Specifies that TaleSpire slab data is provided which is to be decoded into JSON. If this is specified together with -e, SlabelFish will interpret it as -a being set")
     arg_parser.add_argument('-a', '--automatic', action='store_true', help="Tries to guess based on input data entered --in whether to decode or encode and whether to read the data directly from the argument or if it's stored in a file and the file name was specified.")
     arg_parser.add_argument('-c', '--compact', action='store_true', help="Switches to compact mode, printing JSON output in one line instead of prettified with newlines and indentation. Only has an effect in decoding mode.")
+    arg_parser.add_argument('--ts_dir', metavar='TS_DIR', help="Specifies the location of the base directory of TaleSpire. Only needed for encoding to ensure valid input data from the JSON."); #this will probably need another var that defines how it should act on errors (ignore invalid data or stop and warn on invalid data). could be rolled into other settings like always stop and warn on invalid data in verbose mode and ignore them in quiet mode. Could also be done based on if the argument is specified or not
     arg_parser.add_argument('--in_file', metavar='IN_FILE', help="Enter a file name for SlabelFish to read the data (TaleSpire slab or JSON string) from. Don't specify this and positional argument 'data' at the same time, in case of conflict, this will be discarded.")
     arg_parser.add_argument('--out', metavar='OUT_DATA', help="Enter a file name that serves as output for the final result. Progress output like info messages with -v are still printed on the command line.")
     arg_parser.add_argument('data', metavar='IN_DATA', nargs='?', help="Enter raw input data (TaleSpire slab or JSON string) for conversion. Don't specify this and '--in_file' at the same time, in case of conflict this takes precedence.")
@@ -118,13 +124,13 @@ def main():
     if (exec_data['mode'] == 'encode'):
         out_data = encoder.encode(data, exec_data['verbose'], exec_data['quiet'])
     elif (exec_data['mode'] == 'decode'):
-        out_data = decoder.decode(data, asset_list_entry_length, asset_position_entry_length, exec_data['verbose'], exec_data['quiet'])
+        out_data = decoder.decode(data, exec_data['verbose'], exec_data['quiet'])
     elif (exec_data['mode'] == 'automatic'):
         #if (re.fullmatch('^```.*```$|^{.*}$', data) != None):
         if (re.fullmatch('^```.*```$', data) != None): # Decode
             exec_data['mode'] = 'decode'
             print_info("info", "Interpreted input as slab data, setting to decode.", exec_data['verbose'], exec_data['quiet'])
-            out_data = decoder.decode(data, asset_list_entry_length, asset_position_entry_length, exec_data['verbose'], exec_data['quiet'])
+            out_data = decoder.decode(data, exec_data['verbose'], exec_data['quiet'])
         elif (re.fullmatch('^{.*}$', data, flags=re.DOTALL) != None): #Encode
             exec_data['mode'] = 'encode'
             print_info("info", "Interpreted input as JSON data, setting to encode.", exec_data['verbose'], exec_data['quiet'])

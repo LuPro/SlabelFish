@@ -55,7 +55,7 @@ def decode_asset_position(asset_position_data, assets, dec_asset_count, verbose=
 
 
 
-def decode(data, asset_list_entry_length, asset_position_entry_length, verbose=False, quiet=False):
+def decode(data, verbose=False, quiet=False):
     out_json = {
         "unique_asset_count": 0,
         "asset_data": []

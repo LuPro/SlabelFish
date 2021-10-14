@@ -1,5 +1,10 @@
 import gzip
 import base64
+import json
+
+#todo: global kinda ugly. not sure what the "pythonic" way of doing this would be. class? struct? investigate
+asset_list_entry_length = 20
+asset_position_entry_length = 8
 
 def print_info(level, msg, verbose, quiet):
     if (level == "info_quiet" and verbose == True and quiet == False):
