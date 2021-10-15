@@ -29,8 +29,8 @@ Decode or Encode TaleSpire slabs to/from JSON
 
 positional arguments:
   IN_DATA            Enter raw input data (TaleSpire slab or JSON string) for conversion. Don't
-                     specify this and '--in_file' at the same time, in case of conflict this takes
-                     precedence.
+                     specify this and '--in_file' at the same time, in case of conflict in_file
+                     takes precedence.
 
 optional arguments:
   -h, --help         show this help message and exit
@@ -52,8 +52,10 @@ optional arguments:
   --ts_dir TS_DIR    Specifies the location of the base directory of TaleSpire. Only needed for
                      encoding to ensure valid input data from the JSON. **WIP**
   --in_file IN_FILE  Enter a file name for SlabelFish to read the data (TaleSpire slab or JSON
-                     string) from. Don't specify this and positional argument 'data' at the same
-                     time, in case of conflict, this will be discarded.
+                     string) from. File name can be 'stdin', in which case it reads from sys.stdin
+                     later on (Input terminated by newline). Don't specify this and positional
+                     argument 'data' at the same time, in case of conflict, positional data will be
+                     discarded.
   --out OUT_DATA     Enter a file name that serves as output for the final result. Progress output
                      like info messages with -v are still printed on the command line.
 

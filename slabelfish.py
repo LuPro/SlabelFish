@@ -99,18 +99,21 @@ def main():
     arg_parser.add_argument('-a', '--automatic', action='store_true', help="Tries to guess based on input data entered --in whether to decode or encode and whether to read the data directly from the argument or if it's stored in a file and the file name was specified.")
     arg_parser.add_argument('-c', '--compact', action='store_true', help="Switches to compact mode, printing JSON output in one line instead of prettified with newlines and indentation. Only has an effect in decoding mode.")
     arg_parser.add_argument('--ts_dir', metavar='TS_DIR', help="Specifies the location of the base directory of TaleSpire. Only needed for encoding to ensure valid input data from the JSON."); #this will probably need another var that defines how it should act on errors (ignore invalid data or stop and warn on invalid data). could be rolled into other settings like always stop and warn on invalid data in verbose mode and ignore them in quiet mode. Could also be done based on if the argument is specified or not
-    arg_parser.add_argument('--in_file', metavar='IN_FILE', help="Enter a file name for SlabelFish to read the data (TaleSpire slab or JSON string) from. Don't specify this and positional argument 'data' at the same time, in case of conflict, this will be discarded.")
+    arg_parser.add_argument('--in_file', metavar='IN_FILE', help="Enter a file name for SlabelFish to read the data (TaleSpire slab or JSON string) from. File name can be 'stdin', in which case it reads from sys.stdin later on (Input terminated by newline). Don't specify this and positional argument 'data' at the same time, in case of conflict, positional data will be discarded.")
     arg_parser.add_argument('--out', metavar='OUT_DATA', help="Enter a file name that serves as output for the final result. Progress output like info messages with -v are still printed on the command line.")
-    arg_parser.add_argument('data', metavar='IN_DATA', nargs='?', help="Enter raw input data (TaleSpire slab or JSON string) for conversion. Don't specify this and '--in_file' at the same time, in case of conflict this takes precedence.")
+    arg_parser.add_argument('data', metavar='IN_DATA', nargs='?', help="Enter raw input data (TaleSpire slab or JSON string) for conversion. Don't specify this and '--in_file' at the same time, in case of conflict in_file takes precedence.")
     exec_data = read_arguments(arg_parser.parse_args())
     
     # Get data to convert
     data = None
     print_info("info", "Reading input data...", exec_data['verbose'], exec_data['quiet'])
     if (exec_data['in_file'] != None):
-        in_file = open(exec_data['in_file'], "r")
-        data = in_file.read()
-        in_file.close()
+        if (exec_data['in_file'] == "stdin"):
+            data = input()
+        else:
+            in_file = open(exec_data['in_file'], "r")
+            data = in_file.read()
+            in_file.close()
     elif (exec_data['in_data'] != None):
         data = exec_data['in_data']
     else:
