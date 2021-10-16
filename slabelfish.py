@@ -31,7 +31,7 @@ def read_arguments(args):
         print_info("warning", "Both encode and decode was specified. Trying to figure out which one was meant based on input (automatic mode)", exec_data['verbose'], exec_data['quiet'])
         exec_data['mode'] = 'automatic'
     elif (args.encode == True):
-        settexec_dataings['mode'] = 'encode'
+        exec_data['mode'] = 'encode'
     elif (args.decode == True):
         exec_data['mode'] = 'decode'
     else:
