@@ -37,12 +37,10 @@ def get_asset(uuid):
             for i in range(len(indexes[key][type])): #iterate through all assets in this type
                 if (type == "IconsAtlases" or type == "Music"):
                     break
-                print("uuid", uuid.lower())
                 if (uuid.lower() == indexes[key][type][i]["Id"]):
                     #inject the asset type into the json for easier use later on
                     asset = indexes[key][type][i]
                     asset["type"] = type
-                    print("!!!!!!!!!!asset", asset)
                     return asset
 
 #deprecated, use get asset and asset["type"] from its return

@@ -13,10 +13,11 @@ def decode_asset(asset_data, verbose=False, quiet=False):
     print_info("info_quiet", "      asset: " + format_binary(asset_data), verbose, quiet)
     dec_data = unpack('IHH8BI', asset_data)
     uuid = (dec_data[0], dec_data[1], dec_data[2], assemble_bytes(dec_data[3:5]), assemble_bytes(dec_data[5:11]))
+    uuid_strings = (format(uuid[0], "08X"), format(uuid[1], "04X"), format(uuid[2], "04X"), format(uuid[3], "04X"), format(uuid[4], "012X"))
     instance_count = dec_data[11]
     #print("\ndecoded tile data:", '-'.join(format(x, 'X') for x in decData))
     #print("ordered decoded tile data:", '-'.join(format(x, 'X') for x in uuid))
-    uuid_string = '-'.join(format(x, 'X') for x in uuid)
+    uuid_string = '-'.join(x for x in uuid_strings)
     print_info("info_quiet", "      UUID: " + uuid_string + ", # instances: " + str(instance_count), verbose, quiet)
 
     return {

@@ -2,7 +2,6 @@ import io
 import uuid
 import argparse
 import re
-import sys
 
 from utils import *
 import encoder
@@ -137,6 +136,7 @@ def main():
         out_data = decoder.decode(data, exec_data['verbose'], exec_data['quiet'])
     elif (exec_data['mode'] == 'automatic'):
         #if (re.fullmatch('^```.*```$|^{.*}$', data) != None):
+        data = data.strip()
         if (re.fullmatch('^```.*```$', data) != None): # Decode
             exec_data['mode'] = 'decode'
             print_info("info", "Interpreted input as slab data, setting to decode.", exec_data['verbose'], exec_data['quiet'])

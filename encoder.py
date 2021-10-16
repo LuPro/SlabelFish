@@ -30,16 +30,19 @@ def encode_asset_position(instance_json, uuid, verbose=False, quiet=False):
 
     if (instance_json['degree'] % 15 != 0 or instance_json['degree'] > 360 or instance_json['degree'] < 0):
         if (type == "Tiles"):
-            print_info("data_warning", "            Rotation invalid, valid values for tiles are 0, 90, 180 and 270 (raw values 0,6,12,18)\n            " + asset_str(asset) + "\n", verbose, quiet)
+            print_info("data_warning_quiet", "            Rotation invalid, valid values for tiles are 0, 90, 180 and 270 (raw values 0,6,12,18)\n            " + asset_str(asset) + "\n", verbose, quiet)
             #todo make a strict vs non-strict mode. in non-strict it would accept an invalid rotation and round to the nearest valid one and continue
             sys.exit(1)
         elif (type == "Props"):
-            print_info("data_warning", "            Rotation invalid, valid values for props are 0-360 (raw values 0-23)\n            " + asset_str(asset) + "\n", verbose, quiet)
+            print_info("data_warning_quiet", "            Rotation invalid, valid values for props are 0-360 (raw values 0-23)\n            " + asset_str(asset) + "\n", verbose, quiet)
             sys.exit(1)
 
     if (type == "Tiles"):
-        if (instance_json['x'] % 100 != 0 or instance_json['y'] % 100 != 0 or instance_json['z'] % 100 != 0):
-            print_info("data_warning", "            Coordinates invalid, must be a multiple of 100 for tiles\n            " + asset_str(asset) + "\n", verbose, quiet)
+        if (instance_json['x'] % 100 != 0 or instance_json['y'] % 100 != 0):
+            print_info("data_warning_quiet", "            x-y coordinates invalid, must be a multiple of 100 for tiles\n            " + asset_str(asset) + "\n", verbose, quiet)
+            sys.exit(1)
+        if (instance_json['z'] % 25 != 0):
+            print_info("data_warning_quiet", "            z coordinate invalid, must be a multiple of 25 for tiles\n            " + asset_str(asset) + "\n", verbose, quiet)
             sys.exit(1)
 
     position_blob = 0
