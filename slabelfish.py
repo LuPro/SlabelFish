@@ -61,12 +61,15 @@ def read_arguments(args):
                 print_info("error", "This error should be unreachable. There are no mode flags set but it was not caught earlier to ask for input. Aborting.", exec_data['verbose'], exec_data['quiet'])
                 sys.exit(1)
 
+    # this is ugly and doesn't really do what it should, it's a shoddy workaround for being too lazy to make the interactive mode properly
     if (args.ts_dir == None and exec_data['mode'] == 'encode'):
         ts_dir = input("Specify the TaleSpire base directory (absolute path or relative to SlabelFish). Leave empty if no input validation should be done. WIP, NOT IMPLEMENTED YET\n")
         if (assets_reader.verify_TS_dir(ts_dir) and ts_dir != ""):
             exec_data['ts_dir'] = ts_dir
         else:
             exec_data['ts_dir'] = None # Is None the best choice here? If so, is it the best choice for exec_data['out'] a bit later?
+    else:
+            exec_data['ts_dir'] = args.ts_dir
                 
     exec_data['out'] = args.out
     if (args.in_file != None and args.data != None):
@@ -104,6 +107,9 @@ def main():
     arg_parser.add_argument('data', metavar='IN_DATA', nargs='?', help="Enter raw input data (TaleSpire slab or JSON string) for conversion. Don't specify this and '--in_file' at the same time, in case of conflict in_file takes precedence.")
     exec_data = read_arguments(arg_parser.parse_args())
     
+    #this is an ugly hack at this position in the code
+    assets_reader.verify_TS_dir(exec_data['ts_dir'])
+
     # Get data to convert
     data = None
     print_info("info", "Reading input data...", exec_data['verbose'], exec_data['quiet'])
@@ -125,6 +131,7 @@ def main():
     # Check if decode, encode or automatic switch
     out_data = None
     if (exec_data['mode'] == 'encode'):
+        assets_reader.find_indexes()
         out_data = encoder.encode(data, exec_data['verbose'], exec_data['quiet'])
     elif (exec_data['mode'] == 'decode'):
         out_data = decoder.decode(data, exec_data['verbose'], exec_data['quiet'])
@@ -137,6 +144,7 @@ def main():
         elif (re.fullmatch('^{.*}$', data, flags=re.DOTALL) != None): #Encode
             exec_data['mode'] = 'encode'
             print_info("info", "Interpreted input as JSON data, setting to encode.", exec_data['verbose'], exec_data['quiet'])
+            assets_reader.find_indexes()
             out_data = encoder.encode(data, exec_data['verbose'], exec_data['quiet'])
         else:
             print_info("error", "Can't recognize input data as either TaleSpire slab data or JSON! Aborting.", exec_data['verbose'], exec_data['quiet'])

@@ -1,4 +1,5 @@
 from utils import *
+import assets_reader
 
 def create_header(unique_asset_count, verbose=False, quiet=False):
     header = b'\xCE\xFA\xCE\xD1\x02\x00'
@@ -22,8 +23,25 @@ def encode_asset(asset_json, verbose=False, quiet=False):
 
 
 #encodes an asset position
-def encode_asset_position(instance_json, verbose=False, quiet=False):
+def encode_asset_position(instance_json, uuid, verbose=False, quiet=False):
     print_info("info_quiet", "          Encoding asset position: " + json.dumps(instance_json), verbose, quiet)
+    asset = assets_reader.get_asset(uuid)
+    type = asset["type"]
+
+    if (instance_json['degree'] % 15 != 0 or instance_json['degree'] > 360 or instance_json['degree'] < 0):
+        if (type == "Tiles"):
+            print_info("data_warning", "            Rotation invalid, valid values for tiles are 0, 90, 180 and 270 (raw values 0,6,12,18)\n            " + asset_str(asset) + "\n", verbose, quiet)
+            #todo make a strict vs non-strict mode. in non-strict it would accept an invalid rotation and round to the nearest valid one and continue
+            sys.exit(1)
+        elif (type == "Props"):
+            print_info("data_warning", "            Rotation invalid, valid values for props are 0-360 (raw values 0-23)\n            " + asset_str(asset) + "\n", verbose, quiet)
+            sys.exit(1)
+
+    if (type == "Tiles"):
+        if (instance_json['x'] % 100 != 0 or instance_json['y'] % 100 != 0 or instance_json['z'] % 100 != 0):
+            print_info("data_warning", "            Coordinates invalid, must be a multiple of 100 for tiles\n            " + asset_str(asset) + "\n", verbose, quiet)
+            sys.exit(1)
+
     position_blob = 0
     position_blob |= int(instance_json['x'])
     position_blob |= (int(instance_json['y']) << 36)
@@ -44,14 +62,15 @@ def create_assets_data(assets_json, verbose=False, quiet=False):
         asset_list += asset_list_entry
         for instance in asset['instances']: # create an entry in the position list for each instance of each asset
             print_info("info_quiet", "      - Creating position list for asset", verbose, quiet)
-            position_list_entry = encode_asset_position(instance, verbose, quiet)
+            print("asset", asset)
+            position_list_entry = encode_asset_position(instance, asset['uuid'], verbose, quiet)
             position_list += position_list_entry
 
     return (asset_list, position_list)
 
 def encode(data, verbose=False, quiet=False):
     slab_data = b'' # byte string slab blob
-    encode_asset_position(json.loads('{"x": 5, "y": 13, "z": 611, "degree": 345}'), verbose, quiet)
+    #encode_asset_position(json.loads('{"x": 5, "y": 13, "z": 611, "degree": 345}'), verbose, quiet)
 
     slab_json = json.loads(data)
 
