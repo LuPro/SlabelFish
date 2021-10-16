@@ -19,12 +19,14 @@ Depends on whatever Python screams at you when you try to run it, but there aren
 #### Linux
 
 Open a terminal of your choice, navigate to the directory of the executable and run SlabelFish by entering `./slabelfish`. Then follow the instructions (or provide the information as flags beforehand yourself)
+
 See [common usages](#common-usages) for more detailed usage information.
 
 #### Windows
 
 Open a CMD, navigate to the directory of the executable (using `cd`) and enter `slabelfish.exe`. Then follow the instructions (or provide the information as flags beforehand yourself)
 File paths follow the Windows standard of using `\` as folder marker.
+
 See [common usages](#common-usages) for more detailed usage information.
 
 ### Dev Environment
@@ -32,6 +34,7 @@ See [common usages](#common-usages) for more detailed usage information.
 run
 `python slabelfish.py`
 for (fully) interactive mode.
+
 See [common usages](#common-usages) and [help](help-text) for further info on command line arguments.
 
 ### Common usages
@@ -39,24 +42,41 @@ See [common usages](#common-usages) and [help](help-text) for further info on co
 *For ease of documentation all examples are provided with `-a` (automatic mode) to let SlabelFish decide whether it needs to decode or encode, if you want to specify, replace this with either `-e` (encode) or `-d` (decode)*
 
 - Pipeline
-`python slabelfish.py -aq --in_file="stdin"`
+
+```bash
+python slabelfish.py -aq --in_file="stdin"
+```
 
 - Documentation / Tool development
 If you want to create your own encoder/decoder, use verbose mode so SlabelFish documents the individual steps of the process in a human readable way to help with understanding the format / debugging your tool.
-`python slabelfish.py -av --in_file="your/file/name"` (Use backslashes on Windows)
+
+```bash
+python slabelfish.py -av --in_file="your/file/name"
+```
+(Use backslashes on Windows)
 
 - Storing output to a file
 Sometimes it's more convenient to have the output in a file instead of in stdout
-`python slabelfish.py -aq --in_file="cool/in_file/location" --out="out_file_name"`
+
+```bash
+python slabelfish.py -aq --in_file="cool/in_file/location" --out="out_file_name"
+```
 
 - Input data via positional arguments
 When using in your own tool you may want to run SlabelFish with the raw data without needing to hook into stdin or storing it as a file first (positional argument may be limited in length depending on your shell/cmd environment)
-`python slabelfish.py -aq --out="some_out_name" POSITIONAL_DATA`
+
+```bash
+python slabelfish.py -aq --out="some_out_name" POSITIONAL_DATA
+```
+
 Where the positional data can be either a raw TS slab, or a JSON representation of one.
 
 ### Help text
 
-`python slabelfish.py --help`
+```bash
+python slabelfish.py --help
+```
+
 shows help text and usage info. For convenience and documentation purposes the help text is copied to here as well:
 
 ```
