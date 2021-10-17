@@ -65,7 +65,6 @@ def create_assets_data(assets_json, verbose=False, quiet=False):
         asset_list += asset_list_entry
         for instance in asset['instances']: # create an entry in the position list for each instance of each asset
             print_info("info_quiet", "      - Creating position list for asset", verbose, quiet)
-            print("asset", asset)
             position_list_entry = encode_asset_position(instance, asset['uuid'], verbose, quiet)
             position_list += position_list_entry
 
