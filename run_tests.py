@@ -6,7 +6,7 @@ def main():
     print("Testing roundtrip...")
     result = "empty"
     try:
-        result = subprocess.check_output('python slabelfish.py -dqc --in_file="test_slabs/bigger_test_reencode" | python slabelfish.py -eq --ts_dir="testing_data/" --in_file="stdin" | cmp -b test_slabs/bigger_test_reencode', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
+        result = subprocess.check_output('python slabelfish.py -dqc --in_file="test_slabs/bigger_test" | python slabelfish.py -eq --ts_dir="testing_data/" --in_file="stdin" | cmp -b -i 16:16 test_slabs/bigger_test', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
     except Exception as e:
         if (e.returncode == 1): #return code 1 for cmp means files differ
             print("FAIL\nInfo:", e.output)
