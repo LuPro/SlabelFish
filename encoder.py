@@ -96,7 +96,7 @@ def encode(data, verbose=False, quiet=False):
 
     #gzip compress
     print_info("info_quiet", "  - Compressing binary slab data with gzip:", verbose, quiet)
-    slab_compressed_data = gzip.compress(slab_data)
+    slab_compressed_data = gzip.compress(slab_data, compresslevel=9, mtime=0)
 
     #base64 encode
     print_info("info_quiet", "  - Base64 encoding gzip compressed data", verbose, quiet)
