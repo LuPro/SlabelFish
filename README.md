@@ -47,7 +47,7 @@ See [common usages](#common-usages) and [help](help-text) for further info on co
 python slabelfish.py -aq --in_file="stdin"
 ```
 
-- Documentation / Tool development
+- Documentation / Tool development.<br>
 If you want to create your own encoder/decoder, use verbose mode so SlabelFish documents the individual steps of the process in a human readable way to help with understanding the format / debugging your tool.
 
 ```bash
