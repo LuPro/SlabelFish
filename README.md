@@ -5,7 +5,7 @@ Currently knows the "Chimera" Slab Format.
 
 Decodes to JSON for human readable editing, can reencode back to the slab binary format (encoder part WIP)
 
-With verbose output the decoding and encoding can be documented which is mostly to better document/explain the process for if developers are workin on their own decoder or encoder and the text documentation isn't detailed enough (or to debug their implementation).
+With verbose output the decoding and encoding can be documented which is mostly to better document/explain the process for if developers are working on their own decoder or encoder and the text documentation isn't detailed enough (or to debug their implementation).
 
 ## Dependencies
 Tested and developed with Python 3.9.6, but just Python >=3 should suffice (not validated)
@@ -55,14 +55,14 @@ python slabelfish.py -av --in_file="your/file/name"
 ```
 (Use backslashes on Windows)
 
-- Storing output to a file
+- Storing output to a file.<br>
 Sometimes it's more convenient to have the output in a file instead of in stdout
 
 ```bash
 python slabelfish.py -aq --in_file="cool/in_file/location" --out="out_file_name"
 ```
 
-- Input data via positional arguments
+- Input data via positional arguments.<br>
 When using in your own tool you may want to run SlabelFish with the raw data without needing to hook into stdin or storing it as a file first (positional argument may be limited in length depending on your shell/cmd environment)
 
 ```bash
