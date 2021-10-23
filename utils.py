@@ -17,7 +17,10 @@ def print_info(level, msg, verbose, quiet):
 
 #needs the modified asset json with the injected type
 def asset_str(asset):
-    return "Name: " + asset["Name"] + "(" + asset["type"] + "), UUID: " + asset["Id"]
+    if (asset == None):
+        return "Unknown Asset"
+    else:
+        return "Name: " + asset["Name"] + " (" + asset["type"] + "), UUID: " + asset["Id"]
 
 def format_binary(data):
     return ":".join("{:02X}".format(b) for b in data)

@@ -42,6 +42,8 @@ def get_asset(uuid):
                     asset = indexes[key][type][i]
                     asset["type"] = type
                     return asset
+    #print_info("data_warning_quiet", "Tried finding an asset with UUID " + uuid + ", but couldn't find one.")
+    return {"Id": uuid, "type": "unknown"}
 
 #deprecated, use get asset and asset["type"] from its return
 def get_asset_type(uuid):

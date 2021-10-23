@@ -157,11 +157,11 @@ def main():
         print_info("info_quiet", "\n---\n\nResult:", exec_data['verbose'], exec_data['quiet'])
         if (exec_data['mode'] == 'decode'): # can I do that nicer?
             if (exec_data['compact'] == True):
-                print_info("info_quiet", json.dumps(out_data), True, False)
+                print(json.dumps(out_data).strip())
             else:
-                print_info("info_quiet", json.dumps(out_data, indent=2), True, False)
+                print(json.dumps(out_data, indent=2).strip())
         elif (exec_data['mode'] == 'encode'):
-            print_info("info_quiet", out_data.decode(), True, False)
+            print(out_data.decode().strip())
     else:
         if (exec_data['mode'] == 'decode'): # can I do that nicer?
             out_file = open(exec_data['out'], "w")
@@ -171,7 +171,7 @@ def main():
                 out_file.write(json.dumps(out_data, indent=2))
         elif (exec_data['mode'] == 'encode'):
             out_file = open(exec_data['out'], "wb")
-            out_file.write(out_data)
+            out_file.write(out_data.strip())
         out_file.close()
         
     sys.exit(0)
