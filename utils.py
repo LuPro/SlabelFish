@@ -18,7 +18,9 @@ def print_info(level, msg, verbose, quiet):
 #needs the modified asset json with the injected type
 def asset_str(asset):
     if (asset == None):
-        return "Unknown Asset"
+        return "Completely unknown Asset"
+    elif (asset["type"] == "unknown"):
+        return "Unknown Asset with UUID: " + asset["Id"]
     else:
         return "Name: " + asset["Name"] + " (" + asset["type"] + "), UUID: " + asset["Id"]
 
