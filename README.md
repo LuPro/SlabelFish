@@ -5,7 +5,7 @@ Currently knows the "Chimera" Slab Format.
 
 Decodes to JSON for human readable editing, can reencode back to the slab binary format.
 
-With verbose output the decoding and encoding can be documented which is mostly to better document/explain the process for if developers are working on their own decoder or encoder and the text documentation isn't detailed enough (or to debug their implementation).
+With verbose output the decoding and encoding can be documented which is mostly to better document/explain the process for if developers are working on their own decoder or encoder and the [text documentation](slab-format-documentation.md) isn't detailed enough (or to debug their implementation).
 
 ## Dependencies
 Tested and developed with Python 3.9.6, but just Python >=3 should suffice (not validated)
@@ -45,7 +45,7 @@ See [common usages](#common-usages) and [help](help-text) for further info on co
 - Pipeline
 
 ```bash
-python slabelfish.py -aqp --in_file="stdin"
+python slabelfish.py -aqp --if="stdin"
 ```
 
 *The CLI flag "p" for pipeline mode is not necessary to use with pipes, but can make it more convenient because in case of missing arguments it will exit with an error instead of asking for user input*
@@ -54,7 +54,7 @@ python slabelfish.py -aqp --in_file="stdin"
 If you want to create your own encoder/decoder, use verbose mode so SlabelFish documents the individual steps of the process in a human readable way to help with understanding the format / debugging your tool.
 
 ```bash
-python slabelfish.py -av --in_file="your/file/name"
+python slabelfish.py -av --if="your/file/name"
 ```
 (Use backslashes on Windows)
 
@@ -62,7 +62,7 @@ python slabelfish.py -av --in_file="your/file/name"
 Sometimes it's more convenient to have the output in a file instead of in stdout
 
 ```bash
-python slabelfish.py -aq --in_file="cool/in_file/location" --out="out_file_name"
+python slabelfish.py -aq --if="cool/in_file/location" --out="out_file_name"
 ```
 
 - Input data via positional arguments.<br>
@@ -89,32 +89,34 @@ usage: slabelfish.py [-h] [-v] [-q] [-e] [-d] [-a] [-c] [-p] [--ts_dir TS_DIR] [
 Decode or Encode TaleSpire slabs to/from JSON
 
 positional arguments:
-  IN_DATA            Enter raw input data (TaleSpire slab or JSON string) for conversion. Don't specify this and '--in_file'
-                     at the same time, in case of conflict in_file takes precedence.
+  IN_DATA               Enter raw input data (TaleSpire slab or JSON string) for conversion. Don't specify this and '--
+                        in_file' at the same time, in case of conflict this takes precedence.
 
 optional arguments:
-  -h, --help         show this help message and exit
-  -v, --verbose      Show internal messages while de- or encoding slabs. Useful for debugging or learning the format. Errors
-                     will be shown nontheless.
-  -q, --quiet        Turn off all internal messages apart from the final conversion result and necessary input prompts.
-                     Overrides -v.
-  -e, --encode       Specifies that JSON data is provided which is to be encoded into a TaleSpire slab. If this is specified
-                     together with -d, SlabelFish will interpret it as -a being set
-  -d, --decode       Specifies that TaleSpire slab data is provided which is to be decoded into JSON. If this is specified
-                     together with -e, SlabelFish will interpret it as -a being set
-  -a, --automatic    Tries to guess based on input data entered --in whether to decode or encode and whether to read the
-                     data directly from the argument or if it's stored in a file and the file name was specified.
-  -c, --compact      Switches to compact mode, printing JSON output in one line instead of prettified with newlines and
-                     indentation. Only has an effect in decoding mode.
-  -p, --pipeline     Prevents interactive mode and instead exits with an error if something required is missing.
-  --ts_dir TS_DIR    Specifies the location of the base directory of TaleSpire. Only needed for encoding to ensure valid
-                     input data from the JSON.
-  --in_file IN_FILE  Enter a file name for SlabelFish to read the data (TaleSpire slab or JSON string) from. File name can
-                     be 'stdin', in which case it reads from sys.stdin later on (Input terminated by newline). Don't specify
-                     this and positional argument 'data' at the same time, in case of conflict, positional data will be
-                     discarded.
-  --out OUT_DATA     Enter a file name that serves as output for the final result. Progress output like info messages with
-                     -v are still printed on the command line.
+  -h, --help            show this help message and exit
+  -v, --verbose         Show internal messages while de- or encoding slabs. Useful for debugging or learning the format.
+                        Errors will be shown nontheless.
+  -q, --quiet           Turn off all internal messages apart from the final conversion result and necessary input prompts.
+                        Overrides -v.
+  -e, --encode          Specifies that JSON data is provided which is to be encoded into a TaleSpire slab. If this is
+                        specified together with -d, SlabelFish will interpret it as -a being set
+  -d, --decode          Specifies that TaleSpire slab data is provided which is to be decoded into JSON. If this is
+                        specified together with -e, SlabelFish will interpret it as -a being set
+  -a, --automatic       Tries to guess based on input data entered --in whether to decode or encode and whether to read the
+                        data directly from the argument or if it's stored in a file and the file name was specified.
+  -c, --compact         Switches to compact mode, printing JSON output in one line instead of prettified with newlines and
+                        indentation. Only has an effect in decoding mode.
+  -p, --pipeline        Prevents interactive mode and instead exits with an error if something required is missing.
+  --ts_dir TS_DIR       Specifies the location of the base directory of TaleSpire. If no validity check is wanted, set this
+                        parameter to empty string. In pipeline (-p) mode it can also be omitted.
+  --in_file IN_FILE, --if IN_FILE
+                        Enter a file name for SlabelFish to read the data (TaleSpire slab or JSON string) from. File name
+                        can be 'stdin', in which case it reads from sys.stdin later on (Input terminated by newline). Don't
+                        specify this and positional argument 'data' at the same time, in case of conflict, positional data
+                        will take precedence.
+  --out OUT_DATA, --of OUT_DATA
+                        Enter a file name that serves as output for the final result. Progress output like info messages
+                        with -v are still printed on the command line.
 
 If no arguments are specified (or some required ones are omitted), SlabelFish will instead launch into interactive mode
 where the (missing) options are asked via input prompts.

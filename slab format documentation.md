@@ -1,3 +1,6 @@
+# Disclaimer
+There is now an [official documentation](https://github.com/Bouncyrock/DumbSlabStats/blob/master/format.md). This is kept here to have a "different wording" for the format to help with development/understanding, but as this is from reverse engineering the format myself it's not 100% correct everywhere, so refer to the official documentation where they differ.
+
 # Slab data packing
 Slab data is first archived with gzip and the resulting binary data encoded with base64. To decode slabs you have to do these steps in reverse, so first decode with base64 and then unzip using gzip (in my test I just used the Python gzip library, Baggers has said for the last format the default C# gzip implementation works, ... It should be fairly straightforward)
 Once this is decoded you should be left with a string of binary data.
