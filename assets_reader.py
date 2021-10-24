@@ -1,4 +1,5 @@
 from utils import *
+import os
 
 #feels like not pythonic to have a global variable here
 #todo find out file/folder structure and add that to the index.json name
@@ -11,7 +12,8 @@ ts_base_dir = ""
 #todo: evaluate whether this should even be done or if I shouldn't care and just throw errors when files that are needed are missing
 def verify_TS_dir(path):
     global ts_base_dir
-    ts_base_dir = path
+    path_parts = path.split("/")
+    ts_base_dir = os.path.join(*path_parts)
     return True
 
 #where to search for them?
@@ -20,10 +22,8 @@ def find_indexes():
     if (ts_base_dir == None):
         return
 
-    if (not ts_base_dir.endswith("/")): #todo: properly work on windows/os specific paths
-        ts_base_dir += "/"
     #default TS asset pack
-    indexes["d71427a1-5535-4fa7-82d7-4ca1e75edbfd"] = load_index_json(ts_base_dir + "Taleweaver/d71427a1-5535-4fa7-82d7-4ca1e75edbfd/index.json")
+    indexes["d71427a1-5535-4fa7-82d7-4ca1e75edbfd"] = load_index_json(os.path.join(ts_base_dir, "Taleweaver", "d71427a1-5535-4fa7-82d7-4ca1e75edbfd", "index.json"))
 
     #todo find the rest of the asset packs (search through folders - may be a shitty experience if cross platform is wanted, not sure how python handles this
 
@@ -42,7 +42,8 @@ def get_asset(uuid):
     for key in indexes: #iterate through all index files
         for type in indexes[key]: #iterate through all types (tile, prop, creature, music, icon_atlas - consider stopping at "music", doesn't make sense for a slab (at least for now)
             for i in range(len(indexes[key][type])): #iterate through all assets in this type
-                if (type == "IconsAtlases" or type == "Music"):
+                #if (type == "IconsAtlases" or type == "Music"): # using these two actually hurts performance measurably
+                if (type == "Creatures"): # this assumes the order is always the same in the index file (tile, prop, creature, music, icon)
                     break
                 if (uuid.lower() == indexes[key][type][i]["Id"]):
                     #inject the asset type into the json for easier use later on

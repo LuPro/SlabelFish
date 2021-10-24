@@ -12,9 +12,9 @@ def print_info(level, msg, verbose, quiet):
         print(msg)
     if (level == "data_warning_quiet" and quiet == False):
         print(msg)
-    elif ((level == "info" or level == "warning") and verbose == True and quiet == False):
+    elif (level == "info" and verbose == True and quiet == False):
         print(level + ": " + msg)
-    elif (level == "data_warning" and quiet == False):
+    elif ((level == "data_warning" or level == "warning") and quiet == False):
         print(level + ": " + msg)
     elif (level == "error" and quiet == False):
         print(level + ": " + msg, file=sys.stderr)

@@ -25,8 +25,12 @@ def encode_asset(asset_json, verbose=False, quiet=False):
 #encodes an asset position
 def encode_asset_position(instance_json, uuid, offset=[0,0,0], validate=False, verbose=False, quiet=False):
     print_info("info_quiet", "          Encoding asset position: " + json.dumps(instance_json), verbose, quiet)
+    asset = assets_reader.get_asset(uuid)
+    if (instance_json["x"] > 10000 or instance_json["x"] < 0 or instance_json["y"] > 10000 or instance_json["y"] < 0 or instance_json["z"] > 10000 or instance_json["z"] < 0):
+        print_info("data_warning", "Asset out of range. Slabs must not be larger than 100x100x100 (Value of 0 to 10000 per coordinate)\n" + asset_str(asset) + "\n", verbose, quiet)
+        sys.exit(1)
+
     if (validate):
-        asset = assets_reader.get_asset(uuid)
         if (asset == None):
             print_info("error", "Tried finding asset metadata for UUID " + uuid + ", but failed terribly. Maybe no TS base dir was specified?", verbose, quiet) #TODO would be interesting to have a CLI flag toggle that allows to break here. For now try to continue
             type = "unknown"
@@ -122,6 +126,7 @@ def encode(data, validate=False, verbose=False, quiet=False):
 
     print_info("info_quiet", "  - Checking offset from grid", verbose, quiet)
     grid_offset = iterate_tiles_for_offset(slab_json, validate)
+    #grid_offset = [0,0,0]
     print_info("info_quiet", "  - Creating asset list and position list", verbose, quiet)
     asset_data = create_assets_data(slab_json['asset_data'], grid_offset, validate, verbose, quiet)
     slab_data += asset_data[0] + asset_data[1] + b'\x00\x00'
@@ -131,6 +136,9 @@ def encode(data, validate=False, verbose=False, quiet=False):
     #gzip compress
     print_info("info_quiet", "  - Compressing binary slab data with gzip:", verbose, quiet)
     slab_compressed_data = gzip.compress(slab_data, compresslevel=9, mtime=0)
+    if (len(slab_compressed_data) > 30720):
+        print_info("warning", "Slab exceeds TaleSpire size limit of 30kB (30720 bytes) binary data! Aborting.", verbose, quiet)
+        sys.exit(1)
 
     #base64 encode
     print_info("info_quiet", "  - Base64 encoding gzip compressed data", verbose, quiet)

@@ -2,30 +2,31 @@ import io
 import uuid
 import argparse
 import re
+import os
 
 from utils import *
 import encoder
 import decoder
 import assets_reader
 
-def get_data(exec_data):
+def get_data(in_file, in_data, verbose=False, quiet=False):
     # Get data to convert
     data = None
-    print_info("info", "Reading input data...", exec_data['verbose'], exec_data['quiet'])
-    if (exec_data['in_file'] != None):
-        if (exec_data['in_file'] == "stdin"):
+    print_info("info", "Reading input data...", verbose, quiet)
+    if (in_file != None):
+        if (in_file == "stdin"):
             data = input()
         else:
-            in_file = open(exec_data['in_file'], "r")
+            in_file = open(in_file, "r")
             data = in_file.read()
             in_file.close()
-    elif (exec_data['in_data'] != None):
-        data = exec_data['in_data']
+    elif (in_data != None):
+        data = in_data
     else:
         print_info("error", "No in file or data was specified while trying to gather data for conversion! Aborting.", exec_data['verbose'], exec_data['quiet'])
         sys.exit(1)
 
-    print_info("info", "Done.", exec_data['verbose'], exec_data['quiet'])
+    print_info("info", "Done.", verbose, quiet)
     return data
 
 def read_arguments(args):
@@ -34,9 +35,7 @@ def read_arguments(args):
         'verbose': False,
         'pipeline': False,
         'mode': None,
-        'in_file': None,
         'in_data': None,
-        'data': None,
         'out': None,
         'compact': None,
         'ts_dir': None
@@ -78,16 +77,6 @@ def read_arguments(args):
                 break
             else:
                 print("\nThis is an invalid option, please enter a valid one.\n")
-        else:
-            if (args.encode == True):
-                exec_data['mode'] = 'encode'
-            elif (args.decode == True):
-                exec_data['mode'] = 'decode'
-            elif (args.automatic == True):
-                exec_data['mode'] = 'automatic'
-            else:
-                print_info("error", "This error should be unreachable. There are no mode flags set but it was not caught earlier to ask for input. Aborting.", exec_data['verbose'], exec_data['quiet'])
-                sys.exit(1)
                 
     exec_data['out'] = args.out
     if (args.in_file != None and args.data != None):
@@ -98,26 +87,30 @@ def read_arguments(args):
             sys.exit(1)
 
         in_data = input("Please enter the data you want converted. You can either directly paste the data (a TaleSpire slab or a JSON string) here, or specify a file name that contains this (and only this) data.\n")
-        #match = re.search('^```.*```$|.+\.json$', in_data)
-        if (re.fullmatch('^```.*```$|^{.*}$', in_data, flags=re.DOTALL) != None):
-            exec_data['in_data'] = in_data
+        path_parts = in_data.split("/")
+        if (os.path.exists(os.path.join(*path_parts))):
+            in_file = open(os.path.join(*path_parts), 'r')
+            exec_data['in_data'] = in_file.read()
+            in_file.close()
         else:
-            exec_data['in_file'] = in_data
-            
+            exec_data['in_data'] = in_data
+
+        #if (re.fullmatch('^```.*```$|^{.*}$', in_data, flags=re.DOTALL) != None):
+        #    exec_data['in_data'] = in_data
+        #else:
+        #    exec_data['in_file'] = in_data
         if (args.out == None):
             exec_data['out'] = input("Do you also want to store the result in a specific file? If not it will just be displayed at the end of the program execution. Enter the file name you want or leave empty and press enter.\n")
             if (exec_data['out'] == ''):
                 exec_data['out'] = None
     else:
-        exec_data['in_data'] = args.data
-        exec_data['in_file'] = args.in_file
+        exec_data['in_data'] = get_data(args.in_file, exec_data['in_data'], exec_data['verbose'], exec_data['quiet'])
 
-    exec_data['data'] = get_data(exec_data)
 
     #decide whether encode or decode should be chosen if automatic mode was selected
     if (exec_data['mode'] == 'automatic'):
-        data = exec_data['data'].strip()
-        if (re.fullmatch('^```.*```$', data) != None): # Decode
+        data = exec_data['in_data'].strip()
+        if (re.fullmatch('^```.*```$|H4sI.*', data) != None): # Decode (H4sI seems to always be at the beginning of a slab. Not sure why, probably gzip header or the like) TODO consider only checking for JSON and assume that if it's not JSON it's a slab
             exec_data['mode'] = 'decode'
             print_info("info", "Interpreted input as slab data, setting to decode.", exec_data['verbose'], exec_data['quiet'])
         elif (re.fullmatch('^{.*}$', data, flags=re.DOTALL) != None): #Encode
@@ -128,13 +121,19 @@ def read_arguments(args):
             sys.exit(1)
 
     if (args.ts_dir == None and exec_data['mode'] == 'encode'):
-        ts_dir = input("Specify the TaleSpire base directory (absolute path or relative to SlabelFish). Leave empty if no input validation should be done.\n")
-        if (assets_reader.verify_TS_dir(ts_dir) and ts_dir != ""):
-            exec_data['ts_dir'] = ts_dir
+        if (exec_data['pipeline']):
+            exec_data['ts_dir'] = None
         else:
-            exec_data['ts_dir'] = None # Is None the best choice here? If so, is it the best choice for exec_data['out'] a bit later?
+            ts_dir = input("Specify the TaleSpire base directory (absolute path or relative to SlabelFish). Leave empty if no input validation should be done.\n")
+            if (assets_reader.verify_TS_dir(ts_dir) and ts_dir != ""):
+                exec_data['ts_dir'] = ts_dir
+            else:
+                exec_data['ts_dir'] = None # Is None the best choice here? If so, is it the best choice for exec_data['out'] a bit later?
     else:
-            exec_data['ts_dir'] = args.ts_dir
+            if (args.ts_dir == ""):
+                exec_data['ts_dir'] = None
+            else:
+                exec_data['ts_dir'] = args.ts_dir
             
     return exec_data
 
@@ -148,13 +147,13 @@ def main():
     arg_parser.add_argument('-a', '--automatic', action='store_true', help="Tries to guess based on input data entered --in whether to decode or encode and whether to read the data directly from the argument or if it's stored in a file and the file name was specified.")
     arg_parser.add_argument('-c', '--compact', action='store_true', help="Switches to compact mode, printing JSON output in one line instead of prettified with newlines and indentation. Only has an effect in decoding mode.")
     arg_parser.add_argument('-p', '--pipeline', action='store_true', help="Prevents interactive mode and instead exits with an error if something required is missing.")
-    arg_parser.add_argument('--ts_dir', metavar='TS_DIR', help="Specifies the location of the base directory of TaleSpire. Only needed for encoding to ensure valid input data from the JSON."); #this will probably need another var that defines how it should act on errors (ignore invalid data or stop and warn on invalid data). could be rolled into other settings like always stop and warn on invalid data in verbose mode and ignore them in quiet mode. Could also be done based on if the argument is specified or not
-    arg_parser.add_argument('--in_file', metavar='IN_FILE', help="Enter a file name for SlabelFish to read the data (TaleSpire slab or JSON string) from. File name can be 'stdin', in which case it reads from sys.stdin later on (Input terminated by newline). Don't specify this and positional argument 'data' at the same time, in case of conflict, positional data will be discarded.")
-    arg_parser.add_argument('--out', metavar='OUT_DATA', help="Enter a file name that serves as output for the final result. Progress output like info messages with -v are still printed on the command line.")
-    arg_parser.add_argument('data', metavar='IN_DATA', nargs='?', help="Enter raw input data (TaleSpire slab or JSON string) for conversion. Don't specify this and '--in_file' at the same time, in case of conflict in_file takes precedence.")
+    arg_parser.add_argument('--ts_dir', metavar='TS_DIR', help="Specifies the location of the base directory of TaleSpire. If no validity check is wanted, set this parameter to empty string. In pipeline (-p) mode it can also be omitted."); #this will probably need another var that defines how it should act on errors (ignore invalid data or stop and warn on invalid data). could be rolled into other settings like always stop and warn on invalid data in verbose mode and ignore them in quiet mode. Could also be done based on if the argument is specified or not
+    arg_parser.add_argument('--in_file', '--if', metavar='IN_FILE', help="Enter a file name for SlabelFish to read the data (TaleSpire slab or JSON string) from. File name can be 'stdin', in which case it reads from sys.stdin later on (Input terminated by newline). Don't specify this and positional argument 'data' at the same time, in case of conflict, positional data will take precedence.")
+    arg_parser.add_argument('--out', '--of', metavar='OUT_DATA', help="Enter a file name that serves as output for the final result. Progress output like info messages with -v are still printed on the command line.")
+    arg_parser.add_argument('data', metavar='IN_DATA', nargs='?', help="Enter raw input data (TaleSpire slab or JSON string) for conversion. Don't specify this and '--in_file' at the same time, in case of conflict this takes precedence.")
     exec_data = read_arguments(arg_parser.parse_args())
 
-    data = exec_data['data']
+    data = exec_data['in_data']
 
     # Create output
     out_data = None
