@@ -8,9 +8,13 @@ asset_list_entry_length = 20
 asset_position_entry_length = 8
 
 def print_info(level, msg, verbose, quiet):
-    if ((level == "info_quiet" or level == "data_warning_quiet") and verbose == True and quiet == False):
+    if (level == "info_quiet" and verbose == True and quiet == False):
         print(msg)
-    elif ((level == "info" or level == "warning" or level == "data_warning") and verbose == True and quiet == False):
+    if (level == "data_warning_quiet" and quiet == False):
+        print(msg)
+    elif ((level == "info" or level == "warning") and verbose == True and quiet == False):
+        print(level + ": " + msg)
+    elif (level == "data_warning" and quiet == False):
         print(level + ": " + msg)
     elif (level == "error" and quiet == False):
         print(level + ": " + msg, file=sys.stderr)

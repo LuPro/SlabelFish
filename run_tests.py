@@ -9,7 +9,7 @@ def main():
     print("Testing Roundtrip...", end=" ", flush=True)
     result = "empty"
     try:
-        result = subprocess.check_output('python slabelfish.py -dqc --in_file="testing_data/validation_slab" | python slabelfish.py -eq --ts_dir="testing_data/" --in_file="stdin" | cmp -b -i 16 testing_data/validation_slab', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
+        result = subprocess.check_output('python slabelfish.py -dqcp --in_file="testing_data/validation_slab" | python slabelfish.py -eq --ts_dir="testing_data/" --in_file="stdin" | cmp -b -i 16 testing_data/validation_slab', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
         print("PASS")
     except Exception as e:
         foundError = True
@@ -21,7 +21,7 @@ def main():
     print("        Roundtrip alternate slab...", end=" ", flush=True)
     result = "empty"
     try:
-        result = subprocess.check_output('python slabelfish.py -dqc --in_file="testing_data/validation_slab_2" | python slabelfish.py -eq --ts_dir="testing_data/" --in_file="stdin" | cmp -b -i 16 testing_data/validation_slab_2', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
+        result = subprocess.check_output('python slabelfish.py -dqcp --in_file="testing_data/validation_slab_2" | python slabelfish.py -eqp --ts_dir="testing_data/" --in_file="stdin" | cmp -b -i 16 testing_data/validation_slab_2', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
         print("PASS")
     except Exception as e:
         foundError = True
@@ -33,7 +33,7 @@ def main():
     print("        Roundtrip alternate slab 2...", end=" ", flush=True)
     result = "empty"
     try:
-        result = subprocess.check_output('python slabelfish.py -dqc --in_file="testing_data/validation_slab_3" | python slabelfish.py -eq --ts_dir="testing_data/" --in_file="stdin" | cmp -b -i 16 testing_data/validation_slab_3', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
+        result = subprocess.check_output('python slabelfish.py -dqcp --in_file="testing_data/validation_slab_3" | python slabelfish.py -eqp --ts_dir="testing_data/" --in_file="stdin" | cmp -b -i 16 testing_data/validation_slab_3', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
         print("PASS")
     except Exception as e:
         foundError = True
@@ -46,7 +46,7 @@ def main():
     print("        Roundtrip in automatic mode...", end=" ", flush=True)
     result = "empty"
     try:
-        result = subprocess.check_output('python slabelfish.py -aqc --in_file="testing_data/validation_slab" | python slabelfish.py -aq --ts_dir="testing_data/" --in_file="stdin" | cmp -b -i 16 testing_data/validation_slab', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
+        result = subprocess.check_output('python slabelfish.py -aqcp --in_file="testing_data/validation_slab" | python slabelfish.py -aqp --ts_dir="testing_data/" --in_file="stdin" | cmp -b -i 16 testing_data/validation_slab', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
         print("PASS")
     except Exception as e:
         foundError = True
@@ -59,7 +59,7 @@ def main():
     print("Testing Decoding...", end=" ", flush=True)
     result = "empty"
     try:
-        result = subprocess.check_output('python slabelfish.py -dq --in_file="testing_data/validation_slab_2" | cmp -b -i 16 testing_data/validation_slab_2.json', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
+        result = subprocess.check_output('python slabelfish.py -dqp --in_file="testing_data/validation_slab_2" | cmp -b -i 16 testing_data/validation_slab_2.json', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
         print("PASS")
     except Exception as e:
         foundError = True
@@ -71,7 +71,7 @@ def main():
     print("        Decoding alternate slab...", end=" ", flush=True)
     result = "empty"
     try:
-        result = subprocess.check_output('python slabelfish.py -dq --in_file="testing_data/validation_slab_3" | cmp -b -i 16 testing_data/validation_slab_3.json', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
+        result = subprocess.check_output('python slabelfish.py -dqp --in_file="testing_data/validation_slab_3" | cmp -b -i 16 testing_data/validation_slab_3.json', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
         print("PASS")
     except Exception as e:
         foundError = True
@@ -84,7 +84,7 @@ def main():
     print("Testing Encoding...", end=" ", flush=True)
     result = "empty"
     try:
-        result = subprocess.check_output('python slabelfish.py -eq --ts_dir="testing_data/" --in_file="testing_data/validation_slab_2.json" | cmp -b -i 16 testing_data/validation_slab_2', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
+        result = subprocess.check_output('python slabelfish.py -eqp --ts_dir="testing_data/" --in_file="testing_data/validation_slab_2.json" | cmp -b -i 16 testing_data/validation_slab_2', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
         print("PASS")
     except Exception as e:
         foundError = True
@@ -96,7 +96,7 @@ def main():
     print("        Encoding alternate slab...", end=" ", flush=True)
     result = "empty"
     try:
-        result = subprocess.check_output('python slabelfish.py -eq --ts_dir="testing_data/" --in_file="testing_data/validation_slab_3.json" | cmp -b -i 16 testing_data/validation_slab_3', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
+        result = subprocess.check_output('python slabelfish.py -eqp --ts_dir="testing_data/" --in_file="testing_data/validation_slab_3.json" | cmp -b -i 16 testing_data/validation_slab_3', shell=True, encoding="ascii", stderr=subprocess.STDOUT)
         print("PASS")
     except Exception as e:
         foundError = True
@@ -109,9 +109,9 @@ def main():
 
 
     if (foundError):
-        print("Not all tests finished without errors!")
+        print("\nNot all tests finished without errors!")
     else:
-        print("All tests completed successfully")
+        print("\nAll tests completed successfully")
 
 
 if __name__ == '__main__':

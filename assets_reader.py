@@ -17,6 +17,9 @@ def verify_TS_dir(path):
 #where to search for them?
 def find_indexes():
     global ts_base_dir
+    if (ts_base_dir == None):
+        return
+
     if (not ts_base_dir.endswith("/")): #todo: properly work on windows/os specific paths
         ts_base_dir += "/"
     #default TS asset pack
@@ -32,6 +35,10 @@ def load_index_json(index_path):
 
 def get_asset(uuid):
     global indexes
+    global ts_base_dir
+    if (ts_base_dir == None):
+        return None
+
     for key in indexes: #iterate through all index files
         for type in indexes[key]: #iterate through all types (tile, prop, creature, music, icon_atlas - consider stopping at "music", doesn't make sense for a slab (at least for now)
             for i in range(len(indexes[key][type])): #iterate through all assets in this type
@@ -48,6 +55,10 @@ def get_asset(uuid):
 #deprecated, use get asset and asset["type"] from its return
 def get_asset_type(uuid):
     global indexes
+    global ts_base_dir
+    if (ts_base_dir == None):
+        return None
+
     for key in indexes: #iterate through all index files
         for type in indexes[key]: #iterate through all types (tile, prop, creature, music, icon_atlas - consider stopping at "music", doesn't make sense for a slab (at least for now)
             for i in range(len(indexes[key][type])): #iterate through all assets in this type

@@ -23,35 +23,36 @@ def encode_asset(asset_json, verbose=False, quiet=False):
 
 
 #encodes an asset position
-def encode_asset_position(instance_json, uuid, offset=[0,0,0], verbose=False, quiet=False):
+def encode_asset_position(instance_json, uuid, offset=[0,0,0], validate=False, verbose=False, quiet=False):
     print_info("info_quiet", "          Encoding asset position: " + json.dumps(instance_json), verbose, quiet)
-    asset = assets_reader.get_asset(uuid)
-    if (asset == None):
-        print_info("error", "Tried finding asset metadata for UUID " + uuid + ", but failed terribly.", verbose, quiet) #TODO would be interesting to have a CLI flag toggle that allows to break here. For now try to continue
-        type = "unknown"
-    else:
-        type = asset["type"]
+    if (validate):
+        asset = assets_reader.get_asset(uuid)
+        if (asset == None):
+            print_info("error", "Tried finding asset metadata for UUID " + uuid + ", but failed terribly. Maybe no TS base dir was specified?", verbose, quiet) #TODO would be interesting to have a CLI flag toggle that allows to break here. For now try to continue
+            type = "unknown"
+        else:
+            type = asset["type"]
 
-    if (type == "unknown"):
-        print_info("data_warning_quiet", "Tried finding an asset with UUID " + uuid + ", but couldn't find one. Interpreting as prop for least restrictions.", verbose, quiet)
+        if (type == "unknown"):
+            print_info("data_warning_quiet", "Tried finding an asset with UUID " + uuid + ", but couldn't find one. Interpreting as prop for least restrictions.", verbose, quiet)
 
-    if (instance_json['degree'] % 15 != 0 or instance_json['degree'] > 360 or instance_json['degree'] < 0):
+        if (instance_json['degree'] % 15 != 0 or instance_json['degree'] > 360 or instance_json['degree'] < 0):
+            if (type == "Tiles"):
+                print_info("data_warning_quiet", "            Rotation invalid, valid values for tiles are 0, 90, 180 and 270 (raw values 0,6,12,18)\n            " + asset_str(asset) + "\n", verbose, quiet)
+                #todo make a strict vs non-strict mode. in non-strict it would accept an invalid rotation and round to the nearest valid one and continue
+                sys.exit(1)
+            elif (type == "Props" or type == "unknown"):
+                print_info("data_warning_quiet", "            Rotation invalid, valid values are 0-360 (raw values 0-23)\n            " + asset_str(asset) + "\n", verbose, quiet)
+                sys.exit(1)
+
         if (type == "Tiles"):
-            print_info("data_warning_quiet", "            Rotation invalid, valid values for tiles are 0, 90, 180 and 270 (raw values 0,6,12,18)\n            " + asset_str(asset) + "\n", verbose, quiet)
-            #todo make a strict vs non-strict mode. in non-strict it would accept an invalid rotation and round to the nearest valid one and continue
-            sys.exit(1)
-        elif (type == "Props" or type == "unknown"):
-            print_info("data_warning_quiet", "            Rotation invalid, valid values are 0-360 (raw values 0-23)\n            " + asset_str(asset) + "\n", verbose, quiet)
-            sys.exit(1)
-
-    if (type == "Tiles"):
-        #most tiles are limited to steps of 100 but some (like corner fillers) can be placed more finely. not sure how to figure out which is which from the metadata
-        if ((instance_json['x'] + offset[0]) % 50 != 0 or (instance_json['y'] + offset[1]) % 50 != 0):
-            print_info("data_warning_quiet", "            x-y coordinates invalid, must be a multiple of 100 for tiles (relative to all other tiles)\n            " + asset_str(asset) + "\n", verbose, quiet)
-            sys.exit(1)
-        if ((instance_json['z'] + offset[2]) % 25 != 0):
-            print_info("data_warning_quiet", "            z coordinate invalid, must be a multiple of 25 for tiles (relative to all other tiles)\n            " + asset_str(asset) + "\n", verbose, quiet)
-            sys.exit(1)
+            #most tiles are limited to steps of 100 but some (like corner fillers) can be placed more finely. not sure how to figure out which is which from the metadata
+            if ((instance_json['x'] + offset[0]) % 50 != 0 or (instance_json['y'] + offset[1]) % 50 != 0):
+                print_info("data_warning_quiet", "            x-y coordinates invalid, must be a multiple of 100 for tiles (relative to all other tiles)\n            " + asset_str(asset) + "\n", verbose, quiet)
+                sys.exit(1)
+            if ((instance_json['z'] + offset[2]) % 25 != 0):
+                print_info("data_warning_quiet", "            z coordinate invalid, must be a multiple of 25 for tiles (relative to all other tiles)\n            " + asset_str(asset) + "\n", verbose, quiet)
+                sys.exit(1)
 
     position_blob = 0
     position_blob |= int(instance_json['x'])
@@ -64,7 +65,7 @@ def encode_asset_position(instance_json, uuid, offset=[0,0,0], verbose=False, qu
 
 
 # creates asset list and asset position list
-def create_assets_data(assets_json, offset=[0,0,0], verbose=False, quiet=False):
+def create_assets_data(assets_json, offset=[0,0,0], validate=False, verbose=False, quiet=False):
     asset_list = b''
     position_list = b''
 
@@ -73,18 +74,22 @@ def create_assets_data(assets_json, offset=[0,0,0], verbose=False, quiet=False):
         asset_list += asset_list_entry
         for instance in asset['instances']: # create an entry in the position list for each instance of each asset
             print_info("info_quiet", "      - Creating position list for asset", verbose, quiet)
-            position_list_entry = encode_asset_position(instance, asset['uuid'], offset, verbose, quiet)
+            position_list_entry = encode_asset_position(instance, asset['uuid'], offset, validate, verbose, quiet)
             position_list += position_list_entry
 
     return (asset_list, position_list)
 
 #this function name sucks ass
-def iterate_tiles_for_offset(json):
+def iterate_tiles_for_offset(json, validate=False):
+    if (validate == False):
+        return [0,0,0]
     assets = json["asset_data"]
-    minPos = [10000, 10000, 10000]
+    minPos = [20000, 20000, 20000]
     for asset_json in assets:
         asset = assets_reader.get_asset(asset_json["uuid"])
-        if (asset["type"] == "Tiles"):
+        if (asset == None):
+            return [0,0,0] # If asset metadata finding fails, skip. This should *never* happen unless no TS base dir is specified, in which case this part of the code should never be reached anyways.
+        elif (asset["type"] == "Tiles"):
             for instance in asset_json["instances"]:
                 if (instance["x"] < minPos[0]):
                     minPos[0] = instance["x"]
@@ -96,7 +101,7 @@ def iterate_tiles_for_offset(json):
     return [(100 - (minPos[0] % 100)) % 100, (100 - (minPos[1] % 100)) % 100, (25 - (minPos[2] % 25)) % 25]
 
 
-def encode(data, verbose=False, quiet=False):
+def encode(data, validate=False, verbose=False, quiet=False):
     slab_data = b'' # byte string slab blob
     #encode_asset_position(json.loads('{"x": 5, "y": 13, "z": 611, "degree": 345}'), verbose, quiet)
 
@@ -116,9 +121,9 @@ def encode(data, verbose=False, quiet=False):
     print_info("info_quiet", "      Header: " + format_binary(slab_data), verbose, quiet)
 
     print_info("info_quiet", "  - Checking offset from grid", verbose, quiet)
-    grid_offset = iterate_tiles_for_offset(slab_json)
+    grid_offset = iterate_tiles_for_offset(slab_json, validate)
     print_info("info_quiet", "  - Creating asset list and position list", verbose, quiet)
-    asset_data = create_assets_data(slab_json['asset_data'], grid_offset, verbose, quiet)
+    asset_data = create_assets_data(slab_json['asset_data'], grid_offset, validate, verbose, quiet)
     slab_data += asset_data[0] + asset_data[1] + b'\x00\x00'
 
     print_info("info_quiet", "    Binary slab data:\n" + format_binary(slab_data), verbose, quiet)
