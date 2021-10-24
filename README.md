@@ -25,7 +25,8 @@ See [common usages](#common-usages) for more detailed usage information.
 #### Windows
 
 Open a CMD, navigate to the directory of the executable (using `cd`) and enter `slabelfish.exe`. Then follow the instructions (or provide the information as flags beforehand yourself)
-File paths follow the Windows standard of using `\` as folder marker.
+
+*File paths follow UNIX standard of using "/" for folder separators and will be converted into Windows compatible paths internally.*
 
 See [common usages](#common-usages) for more detailed usage information.
 

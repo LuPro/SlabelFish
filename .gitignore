@@ -6,3 +6,5 @@ bin/
 *.json
 *.kate-swp
 slabelfish.spec
+slabelfish_linux.spec
+slabelfish_win.spec

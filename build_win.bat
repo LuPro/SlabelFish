@@ -1,1 +1,1 @@
-pyinstaller slabelfish.py --distpath "./bin/windows" --exclude-module _bootlocale -F
+pyinstaller slabelfish.py --name slabelfish_win.exe --distpath "./bin/windows" --exclude-module _bootlocale -F

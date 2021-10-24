@@ -1,2 +1,2 @@
 #!/bin/sh
-pyinstaller slabelfish.py --distpath "./bin/linux/" --exclude-module _bootlocale -F
+pyinstaller slabelfish.py --name slabelfish_linux --distpath "./bin/linux/" --exclude-module _bootlocale -F
