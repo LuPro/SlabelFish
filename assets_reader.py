@@ -12,6 +12,9 @@ ts_base_dir = ""
 #todo: evaluate whether this should even be done or if I shouldn't care and just throw errors when files that are needed are missing
 def verify_TS_dir(path):
     global ts_base_dir
+    if (path == "" or path == None):
+        ts_base_dir = None
+        return False
     path_parts = path.split("/")
     ts_base_dir = os.path.join(*path_parts)
     return True
