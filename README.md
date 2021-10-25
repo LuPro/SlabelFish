@@ -5,7 +5,7 @@ Currently knows the "Chimera" Slab Format.
 
 Decodes to JSON for human readable editing, can reencode back to the slab binary format.
 
-With verbose output the decoding and encoding can be documented which is mostly to better document/explain the process for if developers are working on their own decoder or encoder and the [text documentation](slab-format-documentation.md) isn't detailed enough (or to debug their implementation).
+With verbose output the decoding and encoding can be documented which is mostly to better document/explain the process for if developers are working on their own decoder or encoder and the [text documentation](slab%20format%20documentation.md) isn't detailed enough (or to debug their implementation).
 
 ## Dependencies
 Tested and developed with Python 3.9.6, but just Python >=3 should suffice (not validated)
